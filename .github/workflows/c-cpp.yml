@@ -32,10 +32,13 @@ jobs:
         run: |
           MSG=$(git log -1 --pretty=%s)
           echo "COMMIT_MSG=$MSG" >> $GITHUB_ENV
+          # On crée aussi un tag unique basé sur le numéro du run
+          echo "TAG_NAME=build-${{ github.run_number }}" >> $GITHUB_ENV
 
       - name: Create Release and Upload os.img
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.TAG_NAME }}
           name: ${{ env.COMMIT_MSG }}
           draft: false
           prerelease: false
