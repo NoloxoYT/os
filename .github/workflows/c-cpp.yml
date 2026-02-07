@@ -1,0 +1,47 @@
+name: OS Build and Release
+
+on:
+  push:
+    branches: [ main, master ]
+
+# Permission nécessaire pour créer une release et uploader des fichiers
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nasm gcc binutils make coreutils
+
+      - name: Build OS Image
+        run: |
+          mkdir -p build
+          make all
+
+      - name: Get Commit Message
+        id: commit_info
+        # On récupère la première ligne du message du commit pour le titre de la release
+        run: |
+          MSG=$(git log -1 --pretty=%s)
+          echo "COMMIT_MSG=$MSG" >> $GITHUB_ENV
+          # On crée aussi un tag unique basé sur le numéro du run
+          echo "TAG_NAME=build-${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Create Release and Upload os.img
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: ${{ env.COMMIT_MSG }}
+          draft: false
+          prerelease: false
+          files: build/os.img
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
