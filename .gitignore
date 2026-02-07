@@ -1,0 +1,8 @@
+build/drivers.o
+build/kernel.bin
+build/kernel.o
+build/kernel.tmp
+build/loader.bin
+build/mbr.bin
+build/nvim.o
+build/os.img

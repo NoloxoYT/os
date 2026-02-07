@@ -63,15 +63,12 @@ void interpreter_commande() {
     input_idx = 0;
 }
 
-void __main() {}
-
 __attribute__((section(".text.entry")))
-void main(void) {
+void __main(void) {
     __asm__ volatile("cli");
     disable_hardware_cursor();
     // Clear screen
     for (int i = 0; i < 80 * 25 * 2; i += 2) { video[i] = ' '; video[i+1] = 0x07; }
-    
     cursor_pos = 160;
     default_color = 0x0F;
     kprint("Noloxo OS : Tape une commande (HELP, CLS...)\n");
