@@ -24,15 +24,20 @@ $(BUILD_DIR)/kernel.o: $(SRC_DIR)/kernel/main.c
 $(BUILD_DIR)/drivers.o: $(SRC_DIR)/kernel/drivers.c
 	$(CC) $(CFLAGS) $< -o $@
 
-$(BUILD_DIR)/kernel.bin: $(BUILD_DIR)/kernel.o $(BUILD_DIR)/drivers.o $(BUILD_DIR)/nvim.o
-	$(LD) -T linker.ld $^ -o $(BUILD_DIR)/kernel.tmp
-	$(OBJCOPY) -O binary $(BUILD_DIR)/kernel.tmp $@
+$(BUILD_DIR)/ewms.o: $(SRC_DIR)/kernel/ewms.c
+	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/nvim.o: $(SRC_DIR)/apps/nvim.c
 	$(CC) $(CFLAGS) $< -o $@
+
+$(BUILD_DIR)/kernel.bin: $(BUILD_DIR)/kernel.o $(BUILD_DIR)/drivers.o $(BUILD_DIR)/ewms.o $(BUILD_DIR)/nvim.o
+	$(LD) -T linker.ld $^ -o $(BUILD_DIR)/kernel.tmp
+	$(OBJCOPY) -O binary $(BUILD_DIR)/kernel.tmp $@
+
 $(BUILD_DIR)/os.img: $(BUILD_DIR)/mbr.bin $(BUILD_DIR)/loader.bin $(BUILD_DIR)/kernel.bin
 	cat $^ > $@
 	# On s'assure que le fichier est assez gros pour le BIOS
 	truncate -s 64k $@
+
 clean:
 	rm -rf $(BUILD_DIR)
